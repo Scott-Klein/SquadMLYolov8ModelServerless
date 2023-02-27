@@ -1,0 +1,71 @@
+metadata:
+  name: military-yolo-v2
+  namespace: cvat
+  annotations:
+    name: Military v2
+    type: detector
+    framework: openvino
+    spec: |
+      [
+        { "id": 0, "name": "ADF" },
+        { "id": 1, "name": "CAN" },
+        { "id": 2, "name": "RUS" },
+        { "id": 3, "name": "USA" },
+        { "id": 4, "name": "MEA" },
+        { "id": 5, "name": "PLA" },
+        { "id": 6, "name": "UK" },
+        { "id": 7, "name": "USMC" },
+        { "id": 8, "name": "Rally" },
+        { "id": 9, "name": "RedAPC" },
+        { "id": 10, "name": "BlueAPC" },
+        { "id": 11, "name": "BlueHeli" },
+        { "id": 12, "name": "Radio" },
+        { "id": 13, "name": "RedHeli" },
+        { "id": 14, "name": "BlueTank" },
+        { "id": 15, "name": "RedTank" },
+        { "id": 16, "name": "BlueCar" },
+        { "id": 17, "name": "RedCar" },
+        { "id": 18, "name": "MIL" },
+        { "id": 19, "name": "INS" },
+        { "id": 20, "name": "GreenCar" },
+        { "id": 21, "name": "BlueTruck" },
+        { "id": 22, "name": "AmmoCrate" },
+        { "id": 23, "name": "RedTruck" },
+        { "id": 24, "name": "HAB" },
+        { "id": 25, "name": "GreenTank" },
+        { "id": 26, "name": "GreenAPC" }
+      ]
+
+spec:
+  description: YOLO v8
+  runtime: python:3.7
+  handler: main:handler
+  eventTimeout: 30s
+
+  build:
+    image: military-yolo-v2
+    baseImage: militarymodel2:latest
+
+    directives:
+      preCopy:
+        - kind: USER
+          value: root
+        - kind: WORKDIR
+          value: /opt/nuclio
+        - kind: RUN
+          value: pip install -r my_requirements.txt
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume
